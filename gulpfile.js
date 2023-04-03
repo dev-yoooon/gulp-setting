@@ -1,8 +1,8 @@
 
 const { src, dest, series, parallel, watch, task } = require('gulp');
 const sass = require('gulp-sass')(require('sass'));
-const $ = require('gulp-load-plugins')();
 const path = require('path');
+const $ = require('gulp-load-plugins')();
 
 const dir = {
   src: {
@@ -22,10 +22,11 @@ const clean = () => {
 		.pipe($.clean())
 }
 
-const html = async () => {
+const html = async () => { 
   return src([dir.src.html])
 		.pipe($.plumber())
     .pipe($.fileInclude())
+    .pipe($.htmlTagInclude())
     .pipe($.ejs())
     .pipe(dest(dir.dist.html))
     .pipe($.connect.reload())
@@ -39,12 +40,13 @@ const build = async () => {
 
 const scss = async () => {
   return src([dir.src.scss])
-  .pipe($.plumber())
+    .pipe($.plumber())
     .pipe($.fileInclude())
     .pipe(sass({
       outputStyle: 'compressed'
     })).on('error', sass.logError)
     .pipe(dest(dir.dist.css))
+    .pipe($.connect.reload())
 }
 
 const server = async () => {
@@ -64,4 +66,4 @@ task('clean', clean);
 task('html', html);
 task('build', build);
 
-exports.default = series(html, scss, watcher, server );
+exports.default = series(html, scss, parallel(watcher, server));
