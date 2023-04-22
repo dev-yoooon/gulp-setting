@@ -3,16 +3,16 @@ const { src, dest, series, parallel, watch, task } = require('gulp');
 const sass = require('gulp-sass')(require('sass'));
 const path = require('path');
 const $ = require('gulp-load-plugins')();
-const through = require('through2')
+const ip = require('ip');
 
 const dir = {
   src: {
-    html: './src/html/**/!(_)*.{html,ejs}',
+    html: './src/**/!(_)*.{html,ejs}',
     scss: './src/assets/scss/**/*.scss',
     js: './src/assets/js/**/*.js'
   },
   dist: {
-    html: './dist/html/',
+    html: './dist/',
     css: './dist/assets/css',
     js: './dist/assets/js/'
   }
@@ -25,6 +25,7 @@ const clean = () => {
 
 const server = async () => {
   $.connect.server({
+    host: ip.address(),
     port: '1119',
     root: './dist',
     livereload: true,
@@ -47,7 +48,7 @@ const scss = async () => {
     .pipe($.plumber())
     .pipe($.fileInclude())
     .pipe(sass({
-      outputStyle: 'compressed'
+      outputStyle: 'expanded'
     })).on('error', sass.logError)
     .pipe(dest(dir.dist.css))
     .pipe($.connect.reload())
@@ -56,7 +57,7 @@ const scss = async () => {
 const image = async () => {  }
 
 const watcher = async () => {
-  watch([ './src/html/**/*.{html,ejs}' ], html)
+  watch([ dir.src.html ], html)
   watch([ dir.src.scss ], scss)
 }
 
