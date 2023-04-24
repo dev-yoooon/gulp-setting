@@ -35,6 +35,7 @@ const server = async () => {
 const html = async () => { 
   return src([dir.src.html])
 		.pipe($.plumber())
+    .pipe($.cached())
     .pipe($.fileInclude())
     .pipe($.htmlTagInclude())
     .pipe($.ejs())
@@ -57,9 +58,10 @@ const scss = async () => {
 const image = async () => {  }
 
 const watcher = async () => {
-  watch([ dir.src.html ], html)
+  watch([ './src/**/*.{html,ejs}' ], html)
   watch([ dir.src.scss ], scss)
 }
 
+const webServer = parallel(watcher, server);
 exports.clean = series(clean);
-exports.default = series(html, scss, parallel(watcher, server));
+exports.default = series(html, scss, webServer);
